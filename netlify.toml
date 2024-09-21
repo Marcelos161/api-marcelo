@@ -1,0 +1,5 @@
+[build]
+  functions = "functions"   # Diretório das funções
+
+[dev]
+  command = "npm start"

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloudinary API</title>
+</head>
+<body>
+  <h1>Lista de Imagens do Cloudinary</h1>
+  <button id="loadImages">Carregar Imagens</button>
+  <ul id="imageList"></ul>
+
+  <script>
+    document.getElementById('loadImages').addEventListener('click', function() {
+      fetch('/.netlify/functions/cloudinary')
+        .then(response => response.json())
+        .then(data => {
+          const imageList = document.getElementById('imageList');
+          data.resources.forEach(image => {
+            const li = document.createElement('li');
+            li.textContent = image.public_id;
+            imageList.appendChild(li);
+          });
+        })
+        .catch(error => console.error('Erro ao buscar imagens:', error));
+    });
+  </script>
+</body>
+</html>

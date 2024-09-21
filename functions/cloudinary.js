@@ -14,6 +14,18 @@ exports.handler = async function (event, context) {
 
   const method = event.httpMethod;
 
+   // Responder ao método OPTIONS
+   if (method === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      },
+    };
+  }
+
   if (method === 'GET') {
     // Lógica para listar as imagens
     try {

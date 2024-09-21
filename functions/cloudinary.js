@@ -1,3 +1,5 @@
+const formidable = require('formidable');
+
 exports.handler = async function (event, context) {
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;  // Nome da Cloudinary
   const apiKey = process.env.CLOUDINARY_API_KEY;        // API Key
@@ -56,41 +58,51 @@ exports.handler = async function (event, context) {
         body: JSON.stringify({ error: 'Erro ao buscar as imagens do Cloudinary' }),
       };
     }
-  } else if (method === 'POST') {
-    // Lógica para adicionar imagens
-    const body = event.body;
+  } else  if (event.httpMethod === 'POST') {
+    const form = new formidable.IncomingForm();
 
-    const urlUpload = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+    // Promete que processa o form e retorna os dados
+    return new Promise((resolve, reject) => {
+      form.parse(event, async (err, fields, files) => {
+        if (err) {
+          reject({ statusCode: 500, body: JSON.stringify({ error: 'Erro ao processar o formulário' }) });
+          return;
+        }
 
+        const file = files.file; // Acessa o arquivo enviado
 
-    try {
-      const fetch = await import('node-fetch').then(mod => mod.default);
+        const formData = new FormData();
+        formData.append('file', file.filepath); // Use o caminho do arquivo
+        formData.append('upload_preset', uploadPreset);
 
-      const response = await fetch(urlUpload, {
-        method: 'POST',
-        body: body,
+        try {
+          const fetch = await import('node-fetch').then(mod => mod.default);
+          const response = await fetch(urlUpload, {
+            method: 'POST',
+            body: formData,
+          });
+
+          const result = await response.json();
+
+          resolve({
+            statusCode: 200,
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Headers': 'Content-Type',
+            },
+            body: JSON.stringify(result),
+          });
+        } catch (error) {
+          reject({
+            statusCode: 500,
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+            },
+            body: JSON.stringify({ error: 'Erro ao fazer upload da imagem no Cloudinary' }),
+          });
+        }
       });
-
-      const result = await response.json();
-
-      return {
-        statusCode: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': 'Content-Type',
-        },
-        body: JSON.stringify(result),
-      };
-    } catch (error) {
-      return {
-        statusCode: 500,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-        },
-        body: JSON.stringify({ error: 'Erro ao fazer upload da imagem no Cloudinary' }),
-        error: error,
-      };
-    }
+    });
   } else {
     return {
       statusCode: 405,

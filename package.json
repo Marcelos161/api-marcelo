@@ -1,14 +1,13 @@
 {
   "name": "api-marcelo",
   "version": "1.0.0",
-  "main": "index.html",
-  "scripts": {
-    "test": "test start"
-  },
-  "author": "",
-  "license": "ISC",
   "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "netlify dev"
+  },
   "dependencies": {
     "node-fetch": "^3.3.2"
-  }
+  },
+  "license": "ISC"
 }

@@ -1,10 +1,16 @@
 exports.handler = async function (event, context) {
-  const cloudName = 'dzgolou3t';
-  const apiKey = '346449748872511';
-  const apiSecret = 'qehHw3EC7Mh1HimscOKq1_BqAfM';
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;  // Nome da Cloudinary
+  const apiKey = process.env.CLOUDINARY_API_KEY;        // API Key
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;  // API Secret
   const uploadPreset = 'semAuth';
 
-  const url = `https://api.cloudinary.com/v1_1/${cloudName}/resources/image`;
+  if (!cloudName || !apiKey || !apiSecret) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Variáveis de ambiente ausentes' }),
+    };
+  }
+  const urlList = `https://api.cloudinary.com/v1_1/${cloudName}/resources/image`;
 
   const method = event.httpMethod;
 

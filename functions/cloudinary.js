@@ -58,19 +58,17 @@ exports.handler = async function (event, context) {
     }
   } else if (method === 'POST') {
     // Lógica para adicionar imagens
-    const body = JSON.parse(event.body);
+    const body = event.body;
 
     const urlUpload = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-    const formData = new URLSearchParams();
-    formData.append('file', body.file); // Adiciona a URL da imagem
-    formData.append('upload_preset', uploadPreset); // Seu preset de upload configurado no Cloudinary
+
 
     try {
       const fetch = await import('node-fetch').then(mod => mod.default);
 
       const response = await fetch(urlUpload, {
         method: 'POST',
-        body: formData,
+        body: body,
       });
 
       const result = await response.json();

@@ -6,7 +6,6 @@ exports.handler = async function (event, context) {
   const url = `https://api.cloudinary.com/v1_1/${cloudName}/resources/image`;
 
   try {
-    // Usando import dinâmico para o node-fetch
     const fetch = await import('node-fetch').then(mod => mod.default);
 
     const response = await fetch(url, {
@@ -19,11 +18,18 @@ exports.handler = async function (event, context) {
 
     return {
       statusCode: 200,
-      body: JSON.stringify(data),  // Retorna os dados das imagens
+      headers: {
+        'Access-Control-Allow-Origin': '*',  // Permite todas as origens
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+      body: JSON.stringify(data),
     };
   } catch (error) {
     return {
       statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',  // Permite todas as origens mesmo em erro
+      },
       body: JSON.stringify({ error: 'Erro ao buscar as imagens do Cloudinary' }),
     };
   }

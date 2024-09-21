@@ -8,6 +8,9 @@ exports.handler = async function (event, context) {
   const url = `https://api.cloudinary.com/v1_1/${cloudName}/resources/image`;
 
   try {
+    // Usando import dinâmico para o node-fetch
+    const fetch = await import('node-fetch').then(mod => mod.default);
+
     const response = await fetch(url, {
       headers: {
         Authorization: 'Basic ' + Buffer.from(`${apiKey}:${apiSecret}`).toString('base64'),
@@ -18,7 +21,7 @@ exports.handler = async function (event, context) {
 
     return {
       statusCode: 200,
-      body: JSON.stringify(data), // Retorna os dados das imagens
+      body: JSON.stringify(data),  // Retorna os dados das imagens
     };
   } catch (error) {
     return {

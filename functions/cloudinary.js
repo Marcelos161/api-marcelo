@@ -10,10 +10,11 @@ exports.handler = async function (event, context) {
       body: JSON.stringify({ error: 'Variáveis de ambiente ausentes' }),
     };
   }
+  const urlList = `https://api.cloudinary.com/v1_1/${cloudName}/resources/image`;
 
   const method = event.httpMethod;
-   // Responder ao método OPTIONS
-   if (method === 'OPTIONS') {
+  // Responder ao método OPTIONS
+  if (method === 'OPTIONS') {
     return {
       statusCode: 204,
       headers: {
@@ -23,33 +24,27 @@ exports.handler = async function (event, context) {
       },
     };
   }
-  
- if (method === 'POST') {
-    // Lógica para adicionar imagens
-    const body = JSON.parse(event.body);
 
-    const urlUpload = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-    const formData = new URLSearchParams();
-    formData.append('file', body.imageUrl); // Adiciona a URL da imagem
-    formData.append('upload_preset', uploadPreset); // Seu preset de upload configurado no Cloudinary
-
+  if (method === 'GET') {
+    // Lógica para listar as imagens
     try {
       const fetch = await import('node-fetch').then(mod => mod.default);
 
-      const response = await fetch(urlUpload, {
-        method: 'POST',
-        body: formData,
+      const response = await fetch(urlList, {
+        headers: {
+          Authorization: 'Basic ' + Buffer.from(`${apiKey}:${apiSecret}`).toString('base64'),
+        },
       });
 
-      const result = await response.json();
+      const data = await response.json();
 
       return {
         statusCode: 200,
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Origin': '*',  // Habilita CORS para todas as origens
           'Access-Control-Allow-Headers': 'Content-Type',
         },
-        body: JSON.stringify(result),
+        body: JSON.stringify(data),
       };
     } catch (error) {
       return {
@@ -57,16 +52,8 @@ exports.handler = async function (event, context) {
         headers: {
           'Access-Control-Allow-Origin': '*',
         },
-        body: JSON.stringify({ error: 'Erro ao fazer upload da imagem no Cloudinary' }),
+        body: JSON.stringify({ error: 'Erro ao buscar as imagens do Cloudinary' }),
       };
     }
-  } else {
-    return {
-      statusCode: 405,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ error: 'Método não permitido' }),
-    };
   }
 };

@@ -88,7 +88,7 @@ exports.handler = async function (event, context) {
           'Access-Control-Allow-Origin': '*',
         },
         body: JSON.stringify({ error: 'Erro ao fazer upload da imagem no Cloudinary' }),
-        console.log(error);
+        error: error,
       };
     }
   } else {

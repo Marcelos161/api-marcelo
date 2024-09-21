@@ -15,7 +15,7 @@ exports.handler = async function (event, context) {
   const method = event.httpMethod;
 
    // Responder ao método OPTIONS
-   if (method === 'OPTIONS') {
+  if (method === 'OPTIONS') {
     return {
       statusCode: 204,
       headers: {
@@ -62,7 +62,7 @@ exports.handler = async function (event, context) {
 
     const urlUpload = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
     const formData = new URLSearchParams();
-    formData.append('file', body.imageUrl); // Adiciona a URL da imagem
+    formData.append('file', body.file); // Adiciona a URL da imagem
     formData.append('upload_preset', uploadPreset); // Seu preset de upload configurado no Cloudinary
 
     try {

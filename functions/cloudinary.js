@@ -1,5 +1,3 @@
-const fetch = require('node-fetch');
-
 exports.handler = async function (event, context) {
   const cloudName = 'dzgolou3t';
   const apiKey = '346449748872511';

@@ -1,3 +1,5 @@
+const { createClient } = require('@supabase/supabase-js');
+
 exports.handler = async function (event, context) {
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;  // Nome da Cloudinary
   const apiKey = process.env.CLOUDINARY_API_KEY;        // API Key
@@ -13,6 +15,7 @@ exports.handler = async function (event, context) {
   const urlList = `https://api.cloudinary.com/v1_1/${cloudName}/resources/image`;
 
   const method = event.httpMethod;
+  const path = event.path; // Pega a rota acessada
   // Responder ao método OPTIONS
   if (method === 'OPTIONS') {
     return {
@@ -23,6 +26,45 @@ exports.handler = async function (event, context) {
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       },
     };
+  }
+
+    // Configuração do Supabase
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_KEY;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+   // Verifica se a rota acessada é para buscar comentários
+   if (method === 'GET' && path.includes('/comentarios')) {
+    // Lógica para buscar comentários no Supabase
+    try {
+
+      const { data, error } = await supabase
+        .from('comentarios')
+        .select('*');
+
+      if (error) {
+        return {
+          statusCode: 400,
+          body: JSON.stringify({ error: error.message }),
+        };
+      }
+
+      return {
+        statusCode: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify(data),
+      };
+    } catch (error) {
+      return {
+        statusCode: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({ error: 'Erro ao buscar os comentários' }),
+      };
+    }
   }
 
   if (method === 'GET') {

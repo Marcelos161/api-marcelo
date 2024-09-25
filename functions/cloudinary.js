@@ -67,6 +67,47 @@ exports.handler = async function (event, context) {
     }
   }
 
+  if (method === 'POST' && path.includes('/comentarios')) {
+    try {
+      const body = JSON.parse(event.body); // Parse do body para pegar os dados do comentário
+      const { id_comentario, ID_foto, comentario, usuario } = body;
+
+      if (!id_comentario || !ID_foto || !comentario || !usuario) {
+        return {
+          statusCode: 400,
+          body: JSON.stringify({ error: 'Campos foto_id, comentario e usuario são necessários' }),
+        };
+      }
+
+      const { data, error } = await supabase
+        .from('comentarios')
+        .insert([{ id_comentario, ID_foto, comentario, usuario }]);
+
+      if (error) {
+        return {
+          statusCode: 400,
+          body: JSON.stringify({ error: error.message }),
+        };
+      }
+
+      return {
+        statusCode: 201,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({ message: 'Comentário inserido com sucesso', data }),
+      };
+    } catch (error) {
+      return {
+        statusCode: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({ error: 'Erro ao inserir o comentário' }),
+      };
+    }
+  }
+
   if (method === 'GET') {
     // Lógica para listar as imagens
     try {

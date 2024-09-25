@@ -70,9 +70,9 @@ exports.handler = async function (event, context) {
   if (method === 'POST' && path.includes('/comentarios')) {
     try {
       const body = JSON.parse(event.body); // Parse do body para pegar os dados do comentário
-      const { id_comentario, ID_foto, comentario, usuario } = body;
+      const {ID_foto, comentario, usuario } = body;
 
-      if (!id_comentario || !ID_foto || !comentario || !usuario) {
+      if (!ID_foto || !comentario || !usuario) {
         return {
           statusCode: 400,
           body: JSON.stringify({ error: 'Campos foto_id, comentario e usuario são necessários' }),
@@ -81,7 +81,7 @@ exports.handler = async function (event, context) {
 
       const { data, error } = await supabase
         .from('comentarios')
-        .insert([{ id_comentario, ID_foto, comentario, usuario }]);
+        .insert([{ID_foto, comentario, usuario }]);
 
       if (error) {
         return {

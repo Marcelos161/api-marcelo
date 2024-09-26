@@ -140,17 +140,23 @@ exports.handler = async function (event, context) {
     // Lógica para listar as imagens
     try {
       const fetch = await import('node-fetch').then(mod => mod.default);
-      
+  
       // URL base da API de listagem de imagens do Cloudinary
       let urlList = `https://api.cloudinary.com/v1_1/${cloudName}/resources/image/upload?max_results=10`;
   
-      // Verifica se o cursor foi passado como parâmetro de consulta na URL
-      const nextCursor = event.queryStringParameters?.next_cursor; // ou da forma como você receber o parâmetro
+      // Verifica se o cursor foi passado como parâmetro de consulta
+      const nextCursor = event.queryStringParameters && event.queryStringParameters.next_cursor;
+      
       if (nextCursor) {
+        console.log(`Cursor encontrado: ${nextCursor}`);
         urlList += `&next_cursor=${nextCursor}`;
+      } else {
+        console.log('Nenhum cursor passado na requisição');
       }
   
-      // Faz a requisição ao Cloudinary com a URL e o cursor
+      console.log(`URL usada para a requisição: ${urlList}`);
+  
+      // Faz a requisição ao Cloudinary com a URL (incluindo o cursor se houver)
       const response = await fetch(urlList, {
         headers: {
           Authorization: 'Basic ' + Buffer.from(`${apiKey}:${apiSecret}`).toString('base64'),
@@ -158,7 +164,9 @@ exports.handler = async function (event, context) {
       });
   
       const data = await response.json();
+      console.log('Resposta da API Cloudinary:', data);
   
+      // Retorna a resposta
       return {
         statusCode: 200,
         headers: {
@@ -168,6 +176,7 @@ exports.handler = async function (event, context) {
         body: JSON.stringify(data),
       };
     } catch (error) {
+      console.error('Erro ao buscar as imagens do Cloudinary:', error);
       return {
         statusCode: 500,
         headers: {

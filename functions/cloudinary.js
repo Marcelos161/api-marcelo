@@ -70,11 +70,11 @@ exports.handler = async function (event, context) {
   if (method === 'POST' && path.includes('/eventos')) {
     try {
       const body = JSON.parse(event.body);
-      const {id, usuario, nome_evento} = body;
+      const {usuario, nome_evento} = body;
 
       const {data, error} = await supabase
         .from('eventos')
-        .insert([{id, usuario, nome_evento}]);
+        .insert([{usuario, nome_evento}]);
 
         return {
           statusCode: 201,

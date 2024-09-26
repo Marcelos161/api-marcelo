@@ -81,7 +81,7 @@ exports.handler = async function (event, context) {
           headers: {
             'Access-Control-Allow-Origin': '*',
           },
-          body: JSON.stringify({ message: 'Comentário inserido com sucesso', data }),
+          body: JSON.stringify({ message: 'evento inserido com sucesso', data }),
         };
     } catch (error) {
       return {

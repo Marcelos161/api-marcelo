@@ -140,15 +140,25 @@ exports.handler = async function (event, context) {
     // Lógica para listar as imagens
     try {
       const fetch = await import('node-fetch').then(mod => mod.default);
-
+      
+      // URL base da API de listagem de imagens do Cloudinary
+      let urlList = `https://api.cloudinary.com/v1_1/${cloudName}/resources/image/upload?max_results=10`;
+  
+      // Verifica se o cursor foi passado como parâmetro de consulta na URL
+      const nextCursor = event.queryStringParameters?.next_cursor; // ou da forma como você receber o parâmetro
+      if (nextCursor) {
+        urlList += `&next_cursor=${nextCursor}`;
+      }
+  
+      // Faz a requisição ao Cloudinary com a URL e o cursor
       const response = await fetch(urlList, {
         headers: {
           Authorization: 'Basic ' + Buffer.from(`${apiKey}:${apiSecret}`).toString('base64'),
         },
       });
-
+  
       const data = await response.json();
-
+  
       return {
         statusCode: 200,
         headers: {

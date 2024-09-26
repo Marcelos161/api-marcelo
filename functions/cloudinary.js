@@ -67,6 +67,34 @@ exports.handler = async function (event, context) {
     }
   }
 
+  if (method === 'POST' && path.includes('/eventos')) {
+    try {
+      const body = JSON.parse(event.body);
+      const {id, usuario, nome_evento} = body;
+
+      const {data, error} = await supabase
+        .from('eventos')
+        .insert([{id, usuario, nome_evento}]);
+
+        return {
+          statusCode: 201,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+          body: JSON.stringify({ message: 'Comentário inserido com sucesso', data }),
+        };
+    } catch (error) {
+      return {
+        statusCode: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({ error: 'Erro ao inserir o comentário' }),
+      };
+    }
+  }
+
+
   if (method === 'POST' && path.includes('/comentarios')) {
     try {
       const body = JSON.parse(event.body); // Parse do body para pegar os dados do comentário

@@ -137,44 +137,45 @@ exports.handler = async function (event, context) {
   }
 
   if (method === 'GET') {
-    // Lógica para listar as imagens
+    // Lógica para listar todas as imagens, percorrendo as páginas
     try {
       const fetch = await import('node-fetch').then(mod => mod.default);
   
       // URL base da API de listagem de imagens do Cloudinary
       let urlList = `https://api.cloudinary.com/v1_1/${cloudName}/resources/image/upload?max_results=10`;
+      let allImages = [];
+      let nextCursor = null;
   
-      // Verifica se o cursor foi passado como parâmetro de consulta
-      const nextCursor = event.queryStringParameters && event.queryStringParameters.next_cursor;
-      
-      if (nextCursor) {
-        console.log(`Cursor encontrado: ${nextCursor}`);
-        urlList += `&next_cursor=${nextCursor}`;
-      } else {
-        console.log('Nenhum cursor passado na requisição');
-      }
+      do {
+        if (nextCursor) {
+          urlList += `&next_cursor=${nextCursor}`;
+        }
   
-      console.log(`URL usada para a requisição: ${urlList}`);
+        console.log(`Requisitando: ${urlList}`);
   
-      // Faz a requisição ao Cloudinary com a URL (incluindo o cursor se houver)
-      const response = await fetch(urlList, {
-        headers: {
-          Authorization: 'Basic ' + Buffer.from(`${apiKey}:${apiSecret}`).toString('base64'),
-        },
-      });
+        const response = await fetch(urlList, {
+          headers: {
+            Authorization: 'Basic ' + Buffer.from(`${apiKey}:${apiSecret}`).toString('base64'),
+          },
+        });
   
-      const data = await response.json();
-      console.log('Resposta da API Cloudinary:', data);
+        const data = await response.json();
+        allImages = allImages.concat(data.resources); // Armazena as imagens
   
-      // Retorna a resposta
+        nextCursor = data.next_cursor; // Atualiza o cursor para a próxima página
+        console.log(`Próximo cursor: ${nextCursor}`);
+  
+      } while (nextCursor); // Continua enquanto houver um next_cursor
+  
       return {
         statusCode: 200,
         headers: {
           'Access-Control-Allow-Origin': '*',  // Habilita CORS para todas as origens
           'Access-Control-Allow-Headers': 'Content-Type',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ images: allImages }), // Retorna todas as imagens
       };
+  
     } catch (error) {
       console.error('Erro ao buscar as imagens do Cloudinary:', error);
       return {
